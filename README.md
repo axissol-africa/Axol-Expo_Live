@@ -4,7 +4,7 @@ This repository contains deployment configuration only. The application images a
 
 ## Required before Deploy
 
-1. Publish the web and API images privately and give the Coolify server permission to pull them. This package does not publish images. Set `WEB_IMAGE` and `API_IMAGE` to the published references, preferably digests. The supplied release is source commit `6647dabab01bdcb22f702a244445902af351afcd`; unfinished local work is excluded.
+1. The web and API images are published privately and pinned by digest in `compose.yaml`. Give the Coolify server permission to pull them. `WEB_IMAGE` and `API_IMAGE` are optional overrides for a different verified release. The supplied release is source commit `6647dabab01bdcb22f702a244445902af351afcd`; unfinished local work is excluded.
 2. Prepare a separate synthetic-data staging PostgreSQL database with the reviewed schemas, restricted roles and accounts. The application does not initialize the database or run migrations. An empty PostgreSQL service is insufficient. The private project operator must complete its database rollout procedure before this deployment is useful for login and console review.
 3. Obtain a working HTTPS hostname for the preview. An existing delegated subdomain is sufficient; a new purchased domain is not required. DNS must reach the Coolify proxy and certificate issuance must work.
 
@@ -12,7 +12,7 @@ This repository contains deployment configuration only. The application images a
 
 1. Authenticate the target server to the private registry under **Servers → your server → Registries** (or **Registries → Log in**, depending on version). For GHCR use a package-reading account and classic token with `read:packages`, with access to both private packages. Keep this credential in Coolify, not Git. Reviewers receive no registry credentials.
 2. Create a resource from **Public Repository**, enter this deployment repository URL, select **Docker Compose**, base directory `/`, Compose location `/compose.yaml`. The services pull images; this repository has no application build context.
-3. Enter every value in `.env.example` using Coolify's environment settings. `PUBLIC_ORIGIN` must be the exact browser origin, e.g. `https://preview.example.com`, with no path, port suffix for internal routing, or trailing slash. `BETTER_AUTH_URL` and `WEB_ORIGIN` are intentionally derived from the same value.
+3. Enter the required database, authentication and origin values from `.env.example` using Coolify's environment settings. Compose interpolation happens before image pulls, so these values must be available to Coolify during deployment as well as at runtime. `PUBLIC_ORIGIN` must be the exact browser origin, e.g. `https://preview.example.com`, with no path, port suffix for internal routing, or trailing slash. `BETTER_AUTH_URL` and `WEB_ORIGIN` are intentionally derived from the same value.
 4. Assign an HTTPS domain to **web**, targeting its internal port **3000**. Coolify's domain field can use `https://preview.example.com:3000`; visitors use `https://preview.example.com`. Leave **api** without a public domain. There are no host port mappings. Coolify's proxy routes to web; web calls api on the Compose network.
 5. Deploy, then perform the checks below. Retain the previously working image digests for rollback. Do not delete database volumes to troubleshoot.
 
@@ -22,7 +22,7 @@ The default images target `linux/amd64`. If the server is ARM64, build/publish A
 
 | Variable | Required value |
 | --- | --- |
-| `WEB_IMAGE`, `API_IMAGE` | Published private image references from the operator |
+| `WEB_IMAGE`, `API_IMAGE` | Optional overrides; default to the published private image digests |
 | `PUBLIC_ORIGIN` | Exact public HTTPS origin |
 | `AUTH_DATABASE_URL` | Staging PostgreSQL URL for the restricted authentication role, not database owner |
 | `APP_DATABASE_URL` | Same staging database through the separate `axis_api` role |

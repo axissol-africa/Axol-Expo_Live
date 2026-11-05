@@ -5,7 +5,12 @@
   "defaultPlatform": "linux/amd64",
   "webApiBuildOrigin": "http://api:4000",
   "includesUncommittedChanges": false,
-  "registryPublication": "pending",
+  "registryPublication": "published-private",
   "sharedDatabaseProvisioning": "required-separately",
-  "deploymentStatus": "not-deployed"
+  "deploymentStatus": "not-deployed",
+  "images": {
+    "API_IMAGE": "ghcr.io/axissol-africa/axsol-preview-api-42067698732-1@sha256:9c24cf1d70c6042a33fd4900630d84ffcdc03e39dceaa32d4b64476eabfab4c4",
+    "WEB_IMAGE": "ghcr.io/axissol-africa/axsol-preview-web-42067698732-1@sha256:1467b3896a40ae8b3eca7649026cf939e61b67038b55160c9eb4986ed2e4ed61"
+  },
+  "publishingRun": "https://github.com/axissol-africa/Axsol-Expo/actions/runs/42067698732"
 }
