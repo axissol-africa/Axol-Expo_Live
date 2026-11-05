@@ -1,0 +1,11 @@
+{
+  "application": "Axsol Expo",
+  "sourceCommit": "6647dabab01bdcb22f702a244445902af351afcd",
+  "imageTag": "6647dab",
+  "defaultPlatform": "linux/amd64",
+  "webApiBuildOrigin": "http://api:4000",
+  "includesUncommittedChanges": false,
+  "registryPublication": "pending",
+  "sharedDatabaseProvisioning": "required-separately",
+  "deploymentStatus": "not-deployed"
+}

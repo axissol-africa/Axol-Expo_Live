@@ -1,0 +1,13 @@
+.env
+.env.*
+!.env.example
+*.log
+*.tar
+*.tar.gz
+*.zip
+*.pem
+*.key
+node_modules/
+dist/
+.next/
+.DS_Store

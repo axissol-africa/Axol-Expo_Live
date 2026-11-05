@@ -1,0 +1,51 @@
+services:
+  api:
+    image: ${API_IMAGE:?Set the private API image reference}
+    platform: ${DEPLOY_PLATFORM:-linux/amd64}
+    init: true
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: "4000"
+      WEB_ORIGIN: ${PUBLIC_ORIGIN:?Set the public HTTPS origin without a trailing slash}
+      AUTH_ENABLED: "true"
+      AUTH_MFA_REQUIRED: "true"
+      AUTH_DATABASE_URL: ${AUTH_DATABASE_URL:?Set the restricted authentication database connection}
+      APP_DATABASE_URL: ${APP_DATABASE_URL:?Set the separate axis_api database connection}
+      BETTER_AUTH_URL: ${PUBLIC_ORIGIN:?Set the public HTTPS origin without a trailing slash}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?Set the authentication encryption secret}
+      AUTH_ADMIN_EMAIL: ${AUTH_ADMIN_EMAIL:?Set the provisioned platform administrator email}
+      AUTH_PROVIDER_KEY: ${AUTH_PROVIDER_KEY:?Set the provider alias used by the provisioned identities}
+      DEFAULT_COUNTRY: ${DEFAULT_COUNTRY:-ZM}
+      INFRASTRUCTURE_ENABLED: "false"
+    expose:
+      - "4000"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4000/api/v1/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  web:
+    image: ${WEB_IMAGE:?Set the private web image reference}
+    platform: ${DEPLOY_PLATFORM:-linux/amd64}
+    init: true
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      NEXT_TELEMETRY_DISABLED: "1"
+      API_INTERNAL_URL: http://api:4000
+    expose:
+      - "3000"
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 45s
