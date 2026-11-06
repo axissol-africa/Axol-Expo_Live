@@ -1,0 +1,94 @@
+services:
+  postgres:
+    image: postgres@sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: axis_expo_preview
+      POSTGRES_PASSWORD: ${PREVIEW_POSTGRES_PASSWORD:?Set the isolated database administrator password}
+    volumes:
+      - preview_database:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d axis_expo_preview"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  provisioner:
+    image: ${PROVISIONER_IMAGE:?Set the reviewed private provisioner image digest}
+    platform: ${DEPLOY_PLATFORM:-linux/amd64}
+    init: true
+    restart: "no"
+    environment:
+      PREVIEW_PROVISION_DATABASE_URL: postgresql://postgres:${PREVIEW_POSTGRES_PASSWORD:?Set the isolated database administrator password}@postgres:5432/axis_expo_preview
+      PREVIEW_RELEASE_PASSWORD: ${PREVIEW_RELEASE_PASSWORD:?Set the separate release password}
+      PREVIEW_AUTH_PASSWORD: ${PREVIEW_AUTH_PASSWORD:?Set the restricted authentication password}
+      PREVIEW_API_PASSWORD: ${PREVIEW_API_PASSWORD:?Set the restricted API password}
+      PREVIEW_INITIAL_PASSWORD: ${PREVIEW_INITIAL_PASSWORD:?Set the initial preview administrator password}
+      AUTH_ADMIN_EMAIL: ${AUTH_ADMIN_EMAIL:?Set the preview administrator email}
+    configs:
+      - source: preview_release_plan
+        target: /run/secrets/preview-release-plan.json
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  api:
+    image: ${API_IMAGE:-ghcr.io/axissol-africa/axsol-preview-api-42067698732-1@sha256:9c24cf1d70c6042a33fd4900630d84ffcdc03e39dceaa32d4b64476eabfab4c4}
+    platform: ${DEPLOY_PLATFORM:-linux/amd64}
+    init: true
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: "4000"
+      WEB_ORIGIN: ${PUBLIC_ORIGIN:?Set the public HTTPS origin without a trailing slash}
+      AUTH_ENABLED: "true"
+      AUTH_MFA_REQUIRED: "true"
+      AUTH_DATABASE_URL: postgresql://axis_auth_runtime:${PREVIEW_AUTH_PASSWORD:?Set the restricted authentication password}@postgres:5432/axis_expo_preview
+      APP_DATABASE_URL: postgresql://axis_api:${PREVIEW_API_PASSWORD:?Set the restricted API password}@postgres:5432/axis_expo_preview
+      BETTER_AUTH_URL: ${PUBLIC_ORIGIN:?Set the public HTTPS origin without a trailing slash}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?Set the authentication encryption secret}
+      AUTH_ADMIN_EMAIL: ${AUTH_ADMIN_EMAIL:?Set the provisioned platform administrator email}
+      AUTH_PROVIDER_KEY: better_auth_preview
+      DEFAULT_COUNTRY: ${DEFAULT_COUNTRY:-ZM}
+      INFRASTRUCTURE_ENABLED: "false"
+    depends_on:
+      provisioner:
+        condition: service_completed_successfully
+    expose:
+      - "4000"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4000/api/v1/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  web:
+    image: ${WEB_IMAGE:-ghcr.io/axissol-africa/axsol-preview-web-42067698732-1@sha256:1467b3896a40ae8b3eca7649026cf939e61b67038b55160c9eb4986ed2e4ed61}
+    platform: ${DEPLOY_PLATFORM:-linux/amd64}
+    init: true
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      NEXT_TELEMETRY_DISABLED: "1"
+      API_INTERNAL_URL: http://api:4000
+    expose:
+      - "3000"
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 45s
+
+volumes:
+  preview_database:
+
+configs:
+  preview_release_plan:
+    content: ${PREVIEW_RELEASE_PLAN_JSON:?Set the completed approved release plan JSON}
