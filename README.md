@@ -66,3 +66,9 @@ Record the volume and physical database identity, then complete the private oper
 After discovery and release-plan completion, select `/compose.preview.yaml` on the same resource. This preserves `preview_database` and adds the private provisioner, API and web. Supply `PREVIEW_RELEASE_PLAN_JSON` as a literal JSON environment value in Coolify, available during deployment; Compose mounts it as a config file. Set the generated preview role/admin passwords, `BETTER_AUTH_SECRET`, `AUTH_ADMIN_EMAIL` and `PUBLIC_ORIGIN` privately in Coolify. Only the provisioning job receives database-administrator and migration credentials. The API waits for successful provisioning; the web waits for API health.
 
 The configuration is intended for the reviewed provisioner release `a6c980c8c2bfa3c9f1b45786cdb92f57e0faff24`. Set `PROVISIONER_IMAGE` to its verified private digest. The repository contains no completed target plan or secrets. The private operator must supply actual target/volume evidence and review references before the provisioner can run.
+
+## Coolify 4.6 shared environment protection
+
+Coolify 4.6 injects its resource `.env` into every Compose service. These Compose files explicitly replace credentials that a service must not receive with `unavailable-to-this-service`. Keep these nonempty overrides: Coolify may replace empty strings with the shared secret. The provisioner receives provisioning credentials, PostgreSQL receives its administrator password, the API receives only its restricted database connections and authentication secret, and the web service receives none of these credentials.
+
+When adding resource environment variables, review every service and add overrides for any new secret names or aliases. Validate Coolify’s generated and resolved Compose configuration before startup. Never add registry or Coolify API tokens to the application resource environment.

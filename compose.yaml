@@ -5,6 +5,15 @@ services:
     init: true
     restart: unless-stopped
     environment:
+      # Coolify 4.6 injects the shared .env; nonempty overrides prevent credential inheritance.
+      PREVIEW_POSTGRES_PASSWORD: unavailable-to-this-service
+      PREVIEW_RELEASE_PASSWORD: unavailable-to-this-service
+      PREVIEW_AUTH_PASSWORD: unavailable-to-this-service
+      PREVIEW_API_PASSWORD: unavailable-to-this-service
+      PREVIEW_INITIAL_PASSWORD: unavailable-to-this-service
+      PREVIEW_PROVISION_DATABASE_URL: unavailable-to-this-service
+      PREVIEW_RELEASE_PLAN_JSON: unavailable-to-this-service
+      POSTGRES_PASSWORD: unavailable-to-this-service
       NODE_ENV: production
       HOST: 0.0.0.0
       PORT: "4000"
@@ -34,6 +43,18 @@ services:
     init: true
     restart: unless-stopped
     environment:
+      # Coolify 4.6 injects the shared .env; nonempty overrides prevent credential inheritance.
+      PREVIEW_POSTGRES_PASSWORD: unavailable-to-this-service
+      PREVIEW_RELEASE_PASSWORD: unavailable-to-this-service
+      PREVIEW_AUTH_PASSWORD: unavailable-to-this-service
+      PREVIEW_API_PASSWORD: unavailable-to-this-service
+      PREVIEW_INITIAL_PASSWORD: unavailable-to-this-service
+      PREVIEW_PROVISION_DATABASE_URL: unavailable-to-this-service
+      PREVIEW_RELEASE_PLAN_JSON: unavailable-to-this-service
+      POSTGRES_PASSWORD: unavailable-to-this-service
+      AUTH_DATABASE_URL: unavailable-to-this-service
+      APP_DATABASE_URL: unavailable-to-this-service
+      BETTER_AUTH_SECRET: unavailable-to-this-service
       NODE_ENV: production
       PORT: "3000"
       NEXT_TELEMETRY_DISABLED: "1"
