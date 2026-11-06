@@ -56,3 +56,9 @@ Only the files in this repository are intended to be public. Keep private images
 - [Coolify registry authentication](https://coolify.io/docs/applications/builds/docker-registries)
 - [Coolify domains and service ports](https://coolify.io/docs/core/networking/domains)
 - [GitHub Container Registry permissions](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry)
+
+## Isolated preview database discovery
+
+The approved preview procedure starts with `/compose.bootstrap.yaml` on the same Coolify resource. It creates a dedicated PostgreSQL17 service and persistent `preview_database` volume without publishing a database port. The discovery job only reads its physical identifier; it does not apply migrations or start the application. Set the stable, generated `PREVIEW_POSTGRES_PASSWORD` through Coolify before deploying this file.
+
+Record the volume and physical database identity, then complete the private operator release plan before switching to the reviewed application/provisioner configuration. A successful discovery job is not approval to start the API. Never delete the volume as a troubleshooting step. Registry authentication is required for the pinned private discovery image.

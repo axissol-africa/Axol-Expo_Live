@@ -1,0 +1,29 @@
+services:
+  postgres:
+    image: postgres@sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: axis_expo_preview
+      POSTGRES_PASSWORD: ${PREVIEW_POSTGRES_PASSWORD:?Set the isolated database administrator password}
+    volumes:
+      - preview_database:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d axis_expo_preview"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  discovery:
+    image: ${PROVISIONER_IMAGE:-ghcr.io/axissol-africa/axsol-preview-preview-provisioner-42179143739-1@sha256:dd8030de4508db212211d89ddac50ad21195f4d4487cdd0d3de08df4e2d63b24}
+    platform: ${DEPLOY_PLATFORM:-linux/amd64}
+    init: true
+    restart: "no"
+    command: ["node", "apps/api/scripts/provision-preview.mjs", "--inspect-target"]
+    environment:
+      PREVIEW_PROVISION_DATABASE_URL: postgresql://postgres:${PREVIEW_POSTGRES_PASSWORD:?Set the isolated database administrator password}@postgres:5432/axis_expo_preview
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  preview_database:
