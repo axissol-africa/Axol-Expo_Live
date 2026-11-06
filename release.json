@@ -6,11 +6,26 @@
   "webApiBuildOrigin": "http://api:4000",
   "includesUncommittedChanges": false,
   "registryPublication": "published-private",
-  "sharedDatabaseProvisioning": "required-separately",
-  "deploymentStatus": "not-deployed",
+  "sharedDatabaseProvisioning": "not-used-isolated-preview",
+  "deploymentStatus": "live-isolated-preview",
   "images": {
     "API_IMAGE": "ghcr.io/axissol-africa/axsol-preview-api-42067698732-1@sha256:9c24cf1d70c6042a33fd4900630d84ffcdc03e39dceaa32d4b64476eabfab4c4",
-    "WEB_IMAGE": "ghcr.io/axissol-africa/axsol-preview-web-42067698732-1@sha256:1467b3896a40ae8b3eca7649026cf939e61b67038b55160c9eb4986ed2e4ed61"
+    "WEB_IMAGE": "ghcr.io/axissol-africa/axsol-preview-web-42067698732-1@sha256:1467b3896a40ae8b3eca7649026cf939e61b67038b55160c9eb4986ed2e4ed61",
+    "PROVISIONER_IMAGE": "ghcr.io/axissol-africa/axsol-preview-preview-provisioner-42179143739-1@sha256:dd8030de4508db212211d89ddac50ad21195f4d4487cdd0d3de08df4e2d63b24"
   },
-  "publishingRun": "https://github.com/axissol-africa/Axsol-Expo/actions/runs/42067698732"
+  "publishingRun": "https://github.com/axissol-africa/Axsol-Expo/actions/runs/42067698732",
+  "previewProvisioning": "verified",
+  "publicOrigin": "https://expo.devaxis.co.zm",
+  "deploymentConfigCommit": "9f261f4",
+  "provisionerSourceCommit": "a6c980c8c2bfa3c9f1b45786cdb92f57e0faff24",
+  "verifiedAt": "2026-11-06T14:31:00Z",
+  "verification": [
+    "trusted-https",
+    "homepage-200",
+    "login-page-200",
+    "administrator-sign-in-200",
+    "unauthenticated-platform-401",
+    "platform-before-mfa-403",
+    "sign-out-200"
+  ]
 }
